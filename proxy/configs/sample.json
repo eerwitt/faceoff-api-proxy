@@ -1,0 +1,65 @@
+{
+    "general": {
+        "domain_name": "brooklyn.vlku.com",
+        "timeout": "1.5",
+        "application_object": "applications.models.Application",
+        "user_provider": {
+            "function": "proxy.authentication.user_finders.UserFinder",
+            "parameters": {
+                "servers": ["http://127.0.0.1:8081/user$1"]
+            }
+        },
+        "analytics":
+            [
+                "proxy.analytics.NoOpAnalytics",
+                {
+                    "function": "proxy.analytics.StatsDAnalytics",
+                    "parameters": {
+                        "host": "statsd.hostedgraphite.com",
+                        "port": 8125,
+                        "prefix": "23aa2904-a468-4138-bad6-35ce74f1fcc8"
+                    }
+                }
+            ],
+        "health_check_storage" : {
+            "implementation": "proxy.healthchecks.storage.RedisHealthCheckStorage",
+            "redis": {
+                "use_settings" : false,
+                "host": "localhost",
+                "port": 6379,
+                "db": 0
+            }
+        },
+        "self_health_check_url": "^proxy-check$"
+    },
+    "endpoints": {
+        "^users(.*)":
+            {
+                "name": "Users",
+                "versioning": true,
+                "auth": true,
+                "auth_provider": "access_tokens.faceoff_auth_providers.AccessTokenOrSuperUserAuthProvider",
+                "pass_headers": true,
+                "server":
+                    {
+                        "servers": ["http://localhost:4000/users$1","http://localhost:6000/users$1"],
+                        "rotation_policy": "proxy.rotations.RoundRobin",
+                        "version": 1
+                    }
+                ,
+                "transformers":{
+                    "response_transformers": {
+                        "proxy.tests.transformers.TestResponseTransformer": {}
+                    }
+                },
+                "http_method_names": ["get", "post", "options", "delete"]
+            },
+        "^devices(.*)":
+            {
+                "name": "Devices",
+                "server":
+                    { "servers": ["http://localhost:3000/devices$1"] }
+
+            }
+    }
+}

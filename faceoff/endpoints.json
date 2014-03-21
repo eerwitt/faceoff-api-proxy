@@ -1,0 +1,161 @@
+{
+    "general": {
+        "domain_name": "localhost:8000",
+        "timeout": "1.5",
+        "application_object": "applications.models.Application",
+        "user_provider": {
+            "function": "access_tokens.faceoff_auth_providers.LNUserFinder",
+            "parameters": {
+                "servers": ["http://livenation-users.herokuapp.com/user"]
+            }
+        },
+        "cache": {
+            "ttl": 300,
+            "function": "proxy.cache.RedisAPICacheStore",
+            "parameters": {
+                "host": "localhost",
+                "port": 6379,
+                "db": 1,
+                "password": ""
+            },
+            "invalidation_url": "^cache/invalidate$"
+        },
+        "analytics":
+            [
+                "proxy.analytics.NoOpAnalytics",
+                {
+                    "function": "proxy.analytics.StatsDAnalytics",
+                    "parameters": {
+                        "host": "$STATSD_HOST",
+                        "port": "$STATSD_PORT",
+                        "prefix": "$STATSD_PREFIX"
+                    }
+                }
+            ],
+        "health_check_storage" : {
+            "implementation": "proxy.healthchecks.storage.RedisHealthCheckStorage",
+            "redis": {
+                "use_settings" : true,
+                "host": "localhost",
+                "port": 6379,
+                "db": 0,
+                "password": ""
+            }
+        },
+        "self_health_check_url": "^proxy-check$"
+    },
+    "endpoints": {
+        "^proxied_test(.*)": {
+            "name": "User Test",
+            "auth": true,
+            "auth_provider": "access_tokens.faceoff_auth_providers.AccessTokenAuthProvider",
+            "server": {"servers" : ["$PROXY_TEST_URL"]},
+            "https_only": true
+        },
+
+        "^/_search(.*)": {
+            "name": "Autocomplete search",
+            "server": {"servers" : ["http://prv.search.lnlapp.com/_search$1"]}
+        },
+         "^affinities(.*)":
+        {
+                "name": "Affinites",
+                "versioning": true,
+                "auth": true,
+                "auth_provider": "access_tokens.faceoff_auth_providers.AccessTokenOrSuperUserAuthProvider",
+                "pass_headers": true,
+                "server":
+                    {
+                        "servers": ["http://localhost:5000/affinities$1"],
+                        "rotation_policy": "proxy.rotations.RoundRobin",
+                        "version": 1
+                    }
+                ,
+                "http_method_names": ["get", "post", "delete"]
+        },
+         "^recommendations(.*)":
+        {
+                "name": "Recommendations",
+                "versioning": true,
+                "auth": true,
+                "auth_provider": "access_tokens.faceoff_auth_providers.AccessTokenOrSuperUserAuthProvider",
+                "pass_headers": true,
+                "server":
+                    {
+                        "servers": ["http://localhost:5000/recommendations$1"],
+                        "rotation_policy": "proxy.rotations.RoundRobin",
+                        "version": 1
+                    }
+                ,
+                "http_method_names": ["get"]
+        },
+         "^events/recommendations(.*)":
+        {
+                "name": "Event Recommendations",
+                "versioning": true,
+                "auth": true,
+                "auth_provider": "access_tokens.faceoff_auth_providers.AccessTokenOrSuperUserAuthProvider",
+                "pass_headers": true,
+                "server":
+                    {
+                        "servers": ["http://localhost:5000/events/recommendations$1"],
+                        "rotation_policy": "proxy.rotations.RoundRobin",
+                        "version": 1
+                    }
+                ,
+                "http_method_names": ["get"]
+        },
+         "^users/recommendations(.*)":
+        {
+                "name": "User Recommendations",
+                "versioning": true,
+                "auth": true,
+                "auth_provider": "access_tokens.faceoff_auth_providers.AccessTokenOrSuperUserAuthProvider",
+                "pass_headers": true,
+                "server":
+                    {
+                        "servers": ["http://localhost:5000/users/recommendations$1"],
+                        "rotation_policy": "proxy.rotations.RoundRobin",
+                        "version": 1
+                    }
+                ,
+                "http_method_names": ["get"]
+        },
+        "^users(.*)":
+        {
+            "name": "Users",
+            "versioning": true,
+            "auth": true,
+            "auth_provider": "access_tokens.faceoff_auth_providers.AccessTokenOrSuperUserAuthProvider",
+            "pass_headers": true,
+            "server":
+            {
+                "servers": ["http://livenation-users.herokuapp.com/users$1"],
+                "rotation_policy": "proxy.rotations.RoundRobin",
+                "version": 1
+            }
+            ,
+            "http_method_names": ["get", "post", "put", "options", "delete"]
+        },
+        "^devices(.*)":
+        {
+            "name": "Devices",
+            "server": {
+                "servers": ["http://localhost:3000/devices$1"]
+            },
+            "transformers": {
+                "response_transformers": {
+                    "proxy.tests.transformers.TestResponseTransformer": {}
+                }
+            }
+        },
+        "^content(.*)": {
+          "name" : "Book of Secrets",
+          "server": {
+            "servers": ["http://user:pass@localhost:3003/api/v1$1"]
+          },
+          "http_method_names": ["GET"]
+          
+        }
+    }
+}

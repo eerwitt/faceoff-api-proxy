@@ -1,0 +1,28 @@
+[
+    {
+    "pk": "e7c95728-852c-11e2-a905-14109fe345b3",
+    "model": "applications.application",
+    "fields": {
+        "name": "Face/Off Sample App",
+        "super_application": false,
+        "created_by": "1",
+        "created_on": "2013-03-05T00:37:48Z",
+        "redirect_uri": "http://localhost/foo",
+        "modified_on": "2013-03-06T20:10:02Z",
+        "client_secret": ""
+        }
+    },
+    {
+        "pk": "eb57d11e-852c-11e2-b39c-14109fe345b3",
+        "model": "applications.application",
+        "fields": {
+            "name": "Face/Off Sample Super Application",
+            "super_application": true,
+            "created_by": "1",
+            "created_on": "2013-03-05T00:37:54Z",
+            "redirect_uri": "http://localhost/foo",
+            "modified_on": "2013-03-05T00:37:54Z",
+            "client_secret": ""
+        }
+    }
+]

@@ -1,0 +1,4 @@
+.. _endpoints:
+
+Endpoints Configuration
+=======================

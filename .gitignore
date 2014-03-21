@@ -1,0 +1,8 @@
+*.pyc
+*.DS_STORE
+docs/_build
+docs/_build/*
+.env
+.idea
+staticfiles/*
+faceoff/local_settings.py

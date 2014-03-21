@@ -1,0 +1,43 @@
+[
+    {
+        "pk": "67b78c4a-852d-11e2-a378-14109fe345b3",
+        "model": "access_tokens.accesstoken",
+        "fields": {
+            "application": "e7c95728-852c-11e2-a905-14109fe345b3",
+            "token": "67b79351-852d-11e2-8ea4-14109fe345b3",
+            "is_active": true,
+            "user": "78",
+            "created_on": "2013-03-05T00:41:23Z"
+        }
+    },
+    {
+        "pk": "f1c3aa63-852c-11e2-ad01-14109fe345b3",
+        "model": "access_tokens.accesstoken",
+        "fields": {
+            "application": "eb57d11e-852c-11e2-b39c-14109fe345b3",
+            "token": "f1c45db8-852c-11e2-a443-14109fe345b3",
+            "is_active": true,
+            "user": "42",
+            "created_on": "2013-03-05T00:38:05Z"
+        }
+    },
+
+    {
+        "pk": 1,
+        "model": "auth.user",
+        "fields": {
+            "username": "nick",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": true,
+            "is_staff": true,
+            "last_login": "2013-03-05T00:37:23Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "pbkdf2_sha256$10000$hO9eKP07VV4j$kpDPLZdqGciX6WDuLauxPbFKcICkqbXQnG7L6Y2Ev8E=",
+            "email": "nick@livenationlabs.com",
+            "date_joined": "2013-03-05T00:37:23Z"
+        }
+    }
+]

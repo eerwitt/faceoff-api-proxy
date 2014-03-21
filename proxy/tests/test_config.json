@@ -1,0 +1,267 @@
+{
+    "general": {
+        "domain_name": "faceoff.example.com",
+        "timeout": "3",
+        "application_object": "applications.models.Application",
+        "user_provider": {
+            "function": "proxy.authentication.user_finders.MockUserFinder"
+        },
+        "analytics": [],
+        "cache": {
+            "function": "proxy.cache.SimpleInMemoryCacheStore",
+            "invalidation_url": "^cache/invalidate$"
+        }
+    },
+    "endpoints": {
+        "^simple(.*)":
+        {
+            "name": "Simple Test",
+            "server":
+            { "servers": ["http://localhost:3000/tests/simple$1"] }
+
+        },
+        "^get_param(.*)":
+        {
+            "name": "Makes sure get parameters are passed in",
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/get_params$1"
+                ]
+            }
+
+        },
+        "^get_array_param(.*)":
+        {
+            "name": "Makes sure get array parameters are passed in",
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/get_array_params$1"
+                ]
+            }
+
+        },
+
+        "^simple_one_works(.*)":
+        {
+            "name": "Endpoint that tests round robin",
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/simple$1",
+                            "http://fakeserver.example.com/tests/simple$1",
+                            "http://anotherbadserver.examople:3000/tests/simple$1"
+                ]
+            }
+
+        },
+        "^custom_headers(.*)":
+        {
+            "name": "Simple Test",
+            "server":
+            { "servers": ["http://localhost:3000/tests/faceoff_headers$1"] }
+
+        },
+        "^round_robin(.*)":
+        {
+            "name": "Round Robin Test",
+            "pass_headers": true,
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/round_robin/1$1",
+                    "http://localhost:3000/tests/round_robin/2$1",
+                    "http://localhost:3000/tests/round_robin/3$1"
+                ],
+                "rotation_policy": "proxy.rotations.RoundRobin",
+                "health_check": {
+                    "function": "proxy.healthchecks.checks.HeadCheck"
+                },
+                "version": 1
+            }
+            ,
+            "http_method_names": ["get", "post", "options", "delete"]
+        },
+        "^app(.*)":
+        {
+            "name": "Application Test",
+            "auth": true,
+            "auth_provider": "proxy.authentication.appkey_providers.AppKeyProvider",
+            "pass_headers": true,
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/test_app$1"],
+                "rotation_policy": "proxy.rotations.RoundRobin",
+                "health_check": {
+                    "function": "proxy.healthchecks.checks.HeadCheck"
+                },
+                "version": 1
+            }
+            ,
+            "http_method_names": ["get", "post", "options", "delete"]
+        },
+        "^down_endpoint(.*)":
+        {
+            "name": "Simple Test",
+            "server":
+            { "servers": ["http://crashed_server.example.com/does_not_exist$1"] }
+
+        },
+        "^slow_response(.*)":
+        {
+            "name": "Endpoint that takes 5 seconds to return",
+            "server":
+            { "servers": ["http://localhost:3000/tests/slow"] }
+
+        },
+        "^status_code(.*)":
+        {
+            "name": "Make sure Face/Off sends the real status code from the server",
+            "pass_headers": true,
+            "server":
+            { "servers": ["http://localhost:3000/tests/status_code$1"] }
+
+        },
+        "^cache/ignore_parameter(.*)":
+        {
+            "name": "Makes sure that parameters are ignored",
+            "pass_headers": true,
+            "cache": {
+                "enabled": true,
+                "rules": {
+                    "proxy.cache.rules.ParametersIgnoreCacheRule": {
+                        "parameters": ["ignore_this"]
+                    }
+                }
+
+            },
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/cache/ignore_parameters$1"]
+            }
+        },
+        "^cache/always_random(.*)":
+        {
+            "name": "Makes sure that we really are cached.  Always returns random value",
+            "pass_headers": true,
+            "cache": {
+                "enabled": true
+            },
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/cache/always_random$1"]
+            }
+        },
+        "^cache/truncate_parameter(.*)":
+        {
+            "name": "Makes sure that parameters are truncated as specified",
+            "pass_headers": true,
+            "cache": {
+                "enabled": true,
+                "rules": {
+                    "proxy.cache.rules.TruncateParametersCacheRule": {
+                        "name": 4
+                    }
+                }
+
+            },
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/cache/truncate_parameter"]
+            }
+        },
+        "^cache/rounded_parameter(.*)":
+        {
+            "name": "Makes sure that parameters are truncated as specified",
+            "pass_headers": true,
+            "cache": {
+                "enabled": true,
+                "rules": {
+                    "proxy.cache.rules.RoundedFloatParametersCacheRule": {
+                        "rounded": 1
+                    }
+                }
+
+            },
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/cache/rounded_parameter.*"]
+            }
+        },
+        "^transformers/response_add_cache_headers_missing(.*)":
+        {
+            "name": "Makes sure that cache headers are added since they are missing",
+            "pass_headers": true,
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/transformers/no_cache_headers"]
+            },
+            "transformers": {
+                "response_transformers": {
+                    "proxy.transformers.AddCacheHeadersIfMissing": {}
+                }
+            }
+        },
+        "^transformers/response_add_cache_headers_already_there(.*)":
+        {
+            "name": "Makes sure that cache headers are not overwritten since they are already there",
+            "pass_headers": true,
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/transformers/cache_headers"]
+            },
+            "transformers": {
+                "response_transformers": {
+                    "proxy.transformers.AddCacheHeadersIfMissing": {}
+                }
+            }
+        },
+        "^transformers/response_test_parameter_in_transformer(.*)":
+        {
+            "name": "Makes sure that we can pass in parameters to Transformers and they are used",
+            "pass_headers": true,
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/transformers/replace_response"]
+            },
+            "transformers": {
+                "response_transformers": {
+                    "proxy.tests.transformers.TestResponseTransformer": {
+                        "test_parameter": "nick"
+                    }
+                }
+            }
+        },
+        "^transformers/request_transformer_test(.*)":
+        {
+            "name": "Makes sure transform requests too",
+            "pass_headers": true,
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/transformers/request_test"]
+            },
+            "transformers": {
+                "request_transformers": {
+                    "proxy.tests.transformers.TestRequestTransformer": {}
+                }
+
+            }
+
+        },
+        "^transformers/ip_white_list":
+        {
+            "name": "IP White List test",
+            "server":
+            {
+                "servers": ["http://localhost:3000/tests/simple"] },
+                "transformers": {
+                    "request_transformers": {
+                        "proxy.transformers.IPWhiteListRequestTransformer": {
+                            "ip_whitelist": [
+                                "5.5.5.5",
+                                "1.2.3.4"
+                            ]
+                        }
+                    }
+                }
+        }
+    }
+}
+
