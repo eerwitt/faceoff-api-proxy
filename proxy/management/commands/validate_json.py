@@ -41,21 +41,21 @@ class Command(BaseCommand):
 
         try:
             config = load_config(cfg_file)
-        except IOError, e:
-            print colored("IOError: Could not open file for reading %s" % e, "red", None, ['bold'])
+        except IOError as e:
+            print(colored("IOError: Could not open file for reading %s" % e, "red", None, ['bold']))
             sys.exit(-1)
-        except Exception, e:
-            print colored("File doesn't seem to valid JSON %s" % e, "red", None, ['bold'])
+        except Exception as e:
+            print(colored("File doesn't seem to valid JSON %s" % e, "red", None, ['bold']))
             sys.exit(-1)
 
-        print colored("File Exists", "green")
-        print colored("File is valid JSON", "green")
+        print(colored("File Exists", "green"))
+        print(colored("File is valid JSON", "green"))
 
         add_proxies_from_data(config)
 
         if general_config().errors_during_init:
-            print colored("JSON file has errors during init", "red", None, ['bold'])
+            print(colored("JSON file has errors during init", "red", None, ['bold']))
             sys.exit(-1)
         else:
-            print colored("JSON file is verified correct", "green", None, ['bold'])
+            print(colored("JSON file is verified correct", "green", None, ['bold']))
             sys.exit(0)

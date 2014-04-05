@@ -31,7 +31,7 @@ class AppKeyProvider(AuthenticationProvider):
                 if obj is None:
                     return AuthenticationError(error_code=401, message="Invalid client_id")
                 return obj
-            except Exception, e:
+            except Exception as e:
                 return AuthenticationError(error_code=401, message="Invalid client_id")
             return AuthenticationError(error_code=401, message="Invalid client_id")
 
@@ -72,9 +72,9 @@ class SignedAppRequestProvider(AppKeyProvider):
                 return obj
             obj = verify_request(request, "signature")
             return obj
-        except AuthenticationError, ae:
+        except AuthenticationError as ae:
             return ae
-        except Exception, e:
+        except Exception as e:
             return AuthenticationError(error_code=500, message="General error")
 
     def get_headers(self, auth_object):

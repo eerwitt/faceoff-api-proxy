@@ -45,7 +45,7 @@ class CacheKeyMaker(object):
             source_key += "%s:" % self.cache_components.get('GET')
             source_key += "%s:" % self.cache_components.get('POST')
             source_key += "%s" % self.cache_components.get('EXTRA')
-            self.hash_key = hashlib.sha224(source_key).hexdigest()
+            self.hash_key = hashlib.sha224(source_key.encode('utf-8')).hexdigest()
             logger.debug("Hash_Key for %s created as %s" % (source_key, self.hash_key))
 
         return self.hash_key
@@ -189,7 +189,7 @@ class RedisAPICacheStore(APICacheStore):
                 return pickle.loads(resp)
             else:
                 return None
-        except ConnectionError, e:
+        except ConnectionError as e:
             logger.warning("Got a timeout error trying to get from Redis API Cache", exc_info=True)
             return None
 
@@ -200,17 +200,17 @@ class RedisAPICacheStore(APICacheStore):
             self.redis.set(key, pickle.dumps(value))
             if ttl > 0:
                 self.redis.expire(key, ttl)
-        except ConnectionError, e:
+        except ConnectionError as e:
             logger.warning("Got a timeout error trying to store into Redis API Cache", exc_info=True)
 
     def invalidate(self, key):
         try:
             self.redis.delete(key)
-        except ConnectionError, e:
+        except ConnectionError as e:
             logger.warning("Got a timeout error trying to store invalidate Redis API Cache", exc_info=True)
 
     def flush(self):
         try:
             self.redis.flushall()
-        except ConnectionError, e:
+        except ConnectionError as e:
             logger.warning("Got a timeout error trying to flush Redis API Cache", exc_info=True)

@@ -2,6 +2,12 @@ import hmac
 import random
 import string
 import urllib
+
+try:
+    from urllib.parse import urlparse
+except:
+    import urlparse
+
 import binascii
 from hashlib import sha1
 from django.test import TestCase
@@ -10,7 +16,7 @@ from applications.models import Application
 from proxy.authentication.utils import verify_request
 from proxy.authentication.exceptions import AuthenticationError
 from proxy.utils import load_class_from_name, get_all_http_request_headers, get_content_request_headers_only, application_hasher
-from proxy.tests import RequestMock
+from proxy.proxy_tests import RequestMock
 
 __author__ = 'nick'
 

@@ -15,7 +15,7 @@ class CacheManager(object):
             self.endpoint_configs = {}
             self.config = config
             logger.info("Using cache store: %s" % config.get('function'))
-        except Exception, e:
+        except Exception as e:
             logger.error("Could not initialize Cache with %s", config, exc_info=True)
 
     def enable_caching_for_endpoint(self, endpoint, endpoint_cfg):

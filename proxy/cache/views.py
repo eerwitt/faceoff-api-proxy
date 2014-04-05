@@ -25,7 +25,7 @@ def invalidate_cache_view(request, application):
             cache_key = UserCacheKeyMaker(u)
             cache_key.invalidate_with_key()
             return HttpResponse(json.dumps({"message": "OK"}), content_type="application/json", status=200)
-        except Exception, e:
+        except Exception as e:
             logger.exception("Could not uncache", e)
             return HttpResponse(json.dumps({"error": "500"}), content_type="application/json", status=500)
     else:

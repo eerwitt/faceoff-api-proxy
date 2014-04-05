@@ -2,8 +2,11 @@ import hmac
 import binascii
 from hashlib import sha1
 from proxy.authentication.exceptions import AuthenticationError
+try:
+    from urllib.parse import urlparse
+except:
+    import urlparse
 import urllib
-import urlparse
 
 
 def verify_request(request, application):
