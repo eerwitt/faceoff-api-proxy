@@ -1,0 +1,6 @@
+test:
+  pre:
+    - psql -c "CREATE DATABASE faceoff_dev"
+  override:
+    - coverage run --source=faceoff manage.py test --liveserver=localhost:3000
+
