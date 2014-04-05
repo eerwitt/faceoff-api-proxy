@@ -214,7 +214,7 @@ class ProxyView(View):
                     status = True
             else:
                 return True
-        except Exception, e:
+        except Exception as e:
             self.err = {"error": 403, "message": "auth_error"}
             self.analytics.increment("proxy.%s.dispatch.server.user_auth_error.fail" % (self.cfg.get('name').lower(), ))
             status = False
@@ -291,11 +291,11 @@ class ProxyView(View):
                 general_config().cache.store.store(cache_key, django_resp)
 
             return django_resp
-        except TransformerException, e:
+        except TransformerException as e:
             self.analytics.increment("proxy.%s.dispatch.server.transformer_exception.fail" % (self.cfg.get('name').lower(), ))
             err = e.to_dict()
             return HttpResponse(json.dumps(err), content_type="application/json", status=e.error_code)
-        except FaceOffException, e:
+        except FaceOffException as e:
             self.analytics.increment("proxy.%s.dispatch.server.faceoff_exception.fail" % (self.cfg.get('name').lower(), ))
             err = e.to_dict()
             return HttpResponse(json.dumps(err), content_type="application/json", status=e.error_code)
@@ -304,12 +304,12 @@ class ProxyView(View):
             self.analytics.increment("proxy.%s.dispatch.server.service_time_out.fail" % (self.cfg.get('name').lower(), ))
             logger.warning("Service timed out for %s" % self.cfg.get('name') )
             return HttpResponse(json.dumps(err), content_type="application/json", status=408)
-        except ConnectionError, e:
+        except ConnectionError as e:
             err = {"error": "1", "message": "connection_error"}
             self.analytics.increment("proxy.%s.dispatch.server.connection_error.fail" % (self.cfg.get('name').lower(), ))
             logger.warning("Service connection errored for %s" % self.cfg.get('name') )
             return HttpResponse(json.dumps(err), content_type="application/json", status=502)
-        except Exception, e:
+        except Exception as e:
             err = {"error": "500", "message": "service_error"}
             self.analytics.increment("proxy.%s.dispatch.server.generic_service_exception.fail" % (self.cfg.get('name').lower(), ))
 

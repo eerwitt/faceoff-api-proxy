@@ -21,7 +21,7 @@ def init_classes_with_params_from_dict(class_dictionary):
             cls = load_class_from_name(entity)
             inited_cls = cls(**class_dictionary.get(entity, {}))
             results.append(inited_cls)
-        except Exception, e:
+        except Exception as e:
             logger.exception("Class '%s' for %s failed at initializing" % (class_dictionary, class_dictionary.get(entity, {})))
 
     return results
@@ -39,7 +39,9 @@ def get_all_http_request_headers(request, custom_headers=None):
                 pure_header[header.replace("_", "-")] = request.META.get(header)
 
     if custom_headers:
-        return dict(pure_header.items() + custom_headers.items())
+        final_dict = pure_header.copy()
+        final_dict.update(custom_headers)
+        return final_dict
     else:
         return pure_header
 
@@ -52,7 +54,9 @@ def get_content_request_headers_only(request, custom_headers=None):
             pure_header[header.replace("_", "-")] = request.META.get(header)
 
     if custom_headers:
-        return dict(pure_header.items() + custom_headers.items())
+        final_dict = pure_header.copy()
+        final_dict.update(custom_headers)
+        return final_dict
     else:
         return pure_header
 

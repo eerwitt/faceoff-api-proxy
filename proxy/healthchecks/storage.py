@@ -92,19 +92,19 @@ class RedisHealthCheckStorage(HealthCheckStorage):
     def store(self, name, server, passed):
         try:
             self.redis.set('%s|%s' % (name.lower(), server.lower()), passed)
-        except ConnectionError, ce:
+        except ConnectionError as ce:
             logger.warning("Got a timeout error trying to store from Redis for %s:%s " % (name, server),  exc_info=True)
 
     def store_service_status(self, service, passed):
         try:
             self.redis.set(service.lower(), passed)
-        except ConnectionError, ce:
+        except ConnectionError as ce:
             logger.warning("Got a timeout error trying to store_service_status from Redis for %s" % service, exc_info=True)
 
     def get_result(self, name, server):
         try:
             result = self.redis.get('%s|%s', name.lower(), server.lower())
-        except ConnectionError, ce:
+        except ConnectionError as ce:
             logger.warning("Got a timeout error trying to get_result from Redis for %s:%s " % (name, server), exc_info=True)
             result = None
 
@@ -116,7 +116,7 @@ class RedisHealthCheckStorage(HealthCheckStorage):
     def get_service_status(self, service):
         try:
             result = self.redis.get(service.lower())
-        except ConnectionError, ce:
+        except ConnectionError as ce:
             logger.warning("Got a timeout error trying to get_service_status from Redis for %s" % service , exc_info=True)
             result = None
 

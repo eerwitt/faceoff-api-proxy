@@ -10,7 +10,7 @@ DATABASES = {
 }
 
 # specify the TEST configuration file, that maps test views for our tests.
-API_CONF_FILE = "../proxy/tests/test_config.json"
+API_CONF_FILE = "../proxy/proxy_tests/test_config.json"
 DEBUG = True
 
 SECRET_KEY = "TEST-SECRET-KEY"

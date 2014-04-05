@@ -13,11 +13,11 @@ SECRET_KEY = '(i++(fm2vjstjmy*l6&myzx*o#zu3n6xy=oa926ms%6(yk5q&m'
 TESTING = 'test' in sys.argv
 
 if os.environ.get('HEROKU', "False") == "True":
-    from heroku_settings import *
+    from faceoff.heroku_settings import *
 elif TESTING:
-    from test_settings import *
+    from faceoff.test_settings import *
 else:
-    from local_settings import *
+    from faceoff.local_settings import *
 
 ADMINS = (
     ('Nick Vlku', 'nick@livenationlabs.com'),
