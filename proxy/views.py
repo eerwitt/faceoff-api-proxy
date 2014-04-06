@@ -1,4 +1,6 @@
 from functools import partial
+from collections import OrderedDict
+
 import json
 import datetime
 import logging
@@ -294,26 +296,26 @@ class ProxyView(View):
         except TransformerException as e:
             self.analytics.increment("proxy.%s.dispatch.server.transformer_exception.fail" % (self.cfg.get('name').lower(), ))
             err = e.to_dict()
-            return HttpResponse(json.dumps(err), content_type="application/json", status=e.error_code)
+            return HttpResponse(json.dumps(err, sort_keys=False), content_type="application/json", status=e.error_code)
         except FaceOffException as e:
             self.analytics.increment("proxy.%s.dispatch.server.faceoff_exception.fail" % (self.cfg.get('name').lower(), ))
             err = e.to_dict()
-            return HttpResponse(json.dumps(err), content_type="application/json", status=e.error_code)
+            return HttpResponse(json.dumps(err, sort_keys=False), content_type="application/json", status=e.error_code)
         except (SSLError, Timeout) as e: # Timeouts are SSLErrors if url is SSL
-            err = {"error": "408", "message": "service_time_out"}
+            err = OrderedDict({"error": "408", "message": "service_time_out"})
             self.analytics.increment("proxy.%s.dispatch.server.service_time_out.fail" % (self.cfg.get('name').lower(), ))
             logger.warning("Service timed out for %s" % self.cfg.get('name') )
-            return HttpResponse(json.dumps(err), content_type="application/json", status=408)
+            return HttpResponse(json.dumps(err, sort_keys=False), content_type="application/json", status=408)
         except ConnectionError as e:
-            err = {"error": "1", "message": "connection_error"}
+            err = OrderedDict({"error": "1", "message": "connection_error"})
             self.analytics.increment("proxy.%s.dispatch.server.connection_error.fail" % (self.cfg.get('name').lower(), ))
             logger.warning("Service connection errored for %s" % self.cfg.get('name') )
-            return HttpResponse(json.dumps(err), content_type="application/json", status=502)
+            return HttpResponse(json.dumps(err, sort_keys=False), content_type="application/json", status=502)
         except Exception as e:
-            err = {"error": "500", "message": "service_error"}
+            err = OrderedDict({"error": "500", "message": "service_error"})
             self.analytics.increment("proxy.%s.dispatch.server.generic_service_exception.fail" % (self.cfg.get('name').lower(), ))
 
-            return HttpResponse(json.dumps(err), content_type="application/json", status=500)
+            return HttpResponse(json.dumps(err, sort_keys=False), content_type="application/json", status=500)
 
     def _allowed_methods(self):
         if 'http_method_names' in self.cfg:

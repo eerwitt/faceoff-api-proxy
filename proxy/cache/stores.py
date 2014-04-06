@@ -89,7 +89,7 @@ class UserCacheKeyMaker(CacheKeyMaker):
     def build_key(self, force_rebuild=False):
         if force_rebuild:
             source_key = settings.SECRET_KEY+":user_request:user_id="+str(self.user['id'])
-            self.hash_keys.append(hashlib.sha224(source_key).hexdigest())
+            self.hash_keys.append(hashlib.sha224(source_key.encode('utf-8')).hexdigest())
 
         return self.hash_keys
 
