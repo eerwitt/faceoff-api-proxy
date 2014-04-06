@@ -8,6 +8,11 @@ try:
 except:
     import urlparse
 
+try:
+    from urllib.parse import urlencode
+except:
+    from urllib import urlencode
+
 import binascii
 from hashlib import sha1
 from django.test import TestCase
@@ -123,7 +128,7 @@ class UtilsTestCase(TestCase):
 
     def __build_signature(self, key, secret, parameters):
         # let's make the signature manually the way we expect
-        query_string = urllib.urlencode(parameters)
+        query_string = urlencode(parameters)
         key = "%s&%s" % (key, secret)
         signed_hash = hmac.new(key, query_string, sha1)
         signed_signature = binascii.b2a_base64(signed_hash.digest())[:-1]

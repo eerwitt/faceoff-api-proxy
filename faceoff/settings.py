@@ -9,7 +9,6 @@ API_CONF_FILE = os.environ.get('FACEOFF_CONFIG_FILE', "envs/prod/endpoints.json"
 # Make this unique, and don't share it with anybody. -- TEST_SETTINGS OVERWRITES THIS
 SECRET_KEY = '(i++(fm2vjstjmy*l6&myzx*o#zu3n6xy=oa926ms%6(yk5q&m'
 
-
 TESTING = 'test' in sys.argv
 
 if os.environ.get('HEROKU', "False") == "True":
@@ -70,7 +69,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(PROJECT_PATH, 'static'),
 )
-
 
 # List of finder classes that know how to find static files in
 # various locations.
