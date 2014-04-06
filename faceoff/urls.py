@@ -24,5 +24,5 @@ urlpatterns += add_proxies(api_cfg)
 
 # test views
 if settings.TESTING:
-    from proxy.tests.urls import add_testing_urls
+    from proxy.proxy_tests.urls import add_testing_urls
     urlpatterns += add_testing_urls(urlpatterns)

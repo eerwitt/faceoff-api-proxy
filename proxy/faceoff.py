@@ -53,7 +53,7 @@ def init_global_config(general_json_config):
             application_object = load_class_from_name(application_object_name)
             global_faceoff_config.application_object = application_object
             logger.info("Configuring Face/Off with application object: %s " % application_object_name)
-        except Exception, e:
+        except Exception as e:
             errors = "some"
             logger.error("Could not load application object with name %s" % (application_object_name,))
     else:
@@ -66,7 +66,7 @@ def init_global_config(general_json_config):
         if isinstance(analytic_class, dict):
             function = analytic_class.get('function')
             parameters = analytic_class.get('parameters')
-        elif isinstance(analytic_class, basestring):
+        elif isinstance(analytic_class, str):
             function = analytic_class
             parameters = {}
         else:
@@ -75,7 +75,7 @@ def init_global_config(general_json_config):
             continue
         try:
             analytics.add_analytic(load_class_from_name(function)(**parameters))
-        except Exception, e:
+        except Exception as e:
             errors = "some"
             logger.error("Could not load analytics class with name %s because of %s" % (analytic_class, e))
 
@@ -89,7 +89,7 @@ def init_global_config(general_json_config):
         global_faceoff_config.user_provider = load_class_from_name(user_function)(**parameters)
         logger.info("Configuring Face/Off with user provider config: %s", user_provider_config)
 
-    except Exception, e:
+    except Exception as e:
         if general_json_config.get('user_provider') is None:
             logger.warning("There is no user provider class, this means Face/Off can't protect endpoints by consumer keys")
         else:

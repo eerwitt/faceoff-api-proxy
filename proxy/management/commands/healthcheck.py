@@ -21,7 +21,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if len(args) < 1:
-            print "Please specify a configuration file"
+            print("Please specify a configuration file")
             exit()
         cfg_file = args[0]
         try:

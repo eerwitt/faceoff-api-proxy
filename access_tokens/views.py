@@ -10,7 +10,6 @@ import logging
 
 logger = logging.getLogger('proxy')
 
-# TODO THIS NEEDS TO BE REWRITTEN for OPEN SOURCE
 @require_parameters(['client_id', 'response_type'])
 def authorization(request):
     
@@ -31,7 +30,7 @@ def authorization(request):
                 if redirect_uri != a.redirect_uri:
                     # require them to be equal for now
                     redirect_uri = None
-        except Exception, e:
+        except Exception as e:
             logger.error("AUTH ERROR WAS %s" % e)
             auth_failed = True
         if isinstance(a, AuthenticationError):
@@ -47,7 +46,7 @@ def authorization(request):
                 user = None
                 try:
                     user = general_config().user_provider.find(facebook_access_token=request.REQUEST.get('facebook_access_token'), device_id=request.REQUEST.get('device_id'), ias_user_id=request.REQUEST.get('ias_user_id'), headers=provider.get_headers(a))
-                except Exception, e:
+                except Exception as e:
                     err = {"error": "500", "message": "connection error"}
                     analytics.increment("proxy.access_tokens.views.authorization.user_provider_connection_error.500.fail")
                     return HttpResponse(json.dumps(err), content_type="application/json", status=500)
@@ -89,7 +88,7 @@ def authorization(request):
             err = {"error": "501", "message": "Token auth not implemented yet"}
             return HttpResponse(json.dumps(err), content_type="application/json", status=501)
 
-    except Exception, e:
+    except Exception as e:
         analytics.increment("proxy.access_tokens.views.authorization.general_failure.%s.500.fail" % e.__class__.__name__)
         err = {"error": "500", "message": "Server Error"}
         return HttpResponse(json.dumps(err), content_type="application/json", status=500)

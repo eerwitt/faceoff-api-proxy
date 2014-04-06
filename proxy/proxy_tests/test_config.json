@@ -223,7 +223,7 @@
             },
             "transformers": {
                 "response_transformers": {
-                    "proxy.tests.transformers.TestResponseTransformer": {
+                    "proxy.proxy_tests.transformers.TestResponseTransformer": {
                         "test_parameter": "nick"
                     }
                 }
@@ -239,7 +239,7 @@
             },
             "transformers": {
                 "request_transformers": {
-                    "proxy.tests.transformers.TestRequestTransformer": {}
+                    "proxy.proxy_tests.transformers.TestRequestTransformer": {}
                 }
 
             }

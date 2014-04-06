@@ -68,7 +68,7 @@ class HeadCheck(HealthCheck):
                 health_check_response = HealthCheckResponse(name=self.name, server=server, code=resp.status_code, passed=False)
                 return health_check_response
 
-        except ConnectionError, e:
+        except ConnectionError as e:
             health_check_response = HealthCheckResponse(code=999, passed=False)
             health_check_response.descriptive_message = "Connection Refused"
             health_check_response.technical_message = "connection refused"

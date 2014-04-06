@@ -1,6 +1,6 @@
 # These are test views, only used in TESTING environment
 from django.conf.urls import patterns, url
-from proxy.tests.views import user_test, app_test, simple_test, round_robin_test, slow_test, status_code, custom_faceoff_headers, get_params_request, cache_ignore_parameter_rule, cache_always_random, cache_truncate_parameter, transformers_cache_headers, transformers_missing_cache_headers, get_array_params_request, cache_rounded_parameter_rule, transformers_test_replace, transformers_request_test
+from proxy.proxy_tests.views import user_test, app_test, simple_test, round_robin_test, slow_test, status_code, custom_faceoff_headers, get_params_request, cache_ignore_parameter_rule, cache_always_random, cache_truncate_parameter, transformers_cache_headers, transformers_missing_cache_headers, get_array_params_request, cache_rounded_parameter_rule, transformers_test_replace, transformers_request_test
 
 
 def add_testing_urls(url_patterns):

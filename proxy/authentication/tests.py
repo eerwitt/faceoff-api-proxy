@@ -16,7 +16,7 @@ class AuthenticationTestCase(TestCase):
     def init_global_config(self):
         proxy_module = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
 
-        f = open(os.path.join(proxy_module, "tests", "test_config.json"), 'r')
+        f = open(os.path.join(proxy_module, "proxy_tests", "test_config.json"), 'r')
         config = json.loads(f.read())
         f.close()
 
