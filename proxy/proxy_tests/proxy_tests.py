@@ -1,5 +1,6 @@
 from time import sleep
 import uuid
+import json
 from django.test import LiveServerTestCase
 from django.test.client import Client
 from applications import application_cache
@@ -48,7 +49,7 @@ class ProxyTests(LiveServerTestCase):
 
     def testFaceoffCustomHeaders(self):
         response = self.client.get("/custom_headers")
-        self.assertIn("HTTP_X_FORWARDED_HOST", response.content)
+        self.assertIn(b"HTTP_X_FORWARDED_HOST", response.content)
         self.assertEqual("HTTP_X_FORWARDED_HOST:%s" % general_config().domain_name, response.content.decode('utf-8'))
 
     def testAppAuthSuccess(self):
@@ -57,7 +58,10 @@ class ProxyTests(LiveServerTestCase):
 
     def testAppAuthFailure(self):
         response = self.client.get("/app", {"client_id": "bad app id"})
-        self.assertEqual(response.content.decode('utf-8'), '{"message": "Invalid client_id", "error": 401}')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result['error'], 401)
+        self.assertEqual(result['message'], "Invalid client_id")
+        self.assertEqual(response.status_code, 401)
 
     def testRoundRobin(self):
         responses = [self.client.get("/round_robin").content.decode('utf-8'),
@@ -68,14 +72,18 @@ class ProxyTests(LiveServerTestCase):
 
     def testDownedEndpoint(self):
         response = self.client.get("/down_endpoint")
-        self.assertEqual(response.content.decode('utf-8'), '{"message": "connection_error", "error": "1"}')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result['error'], '1')
+        self.assertEqual(result['message'], "connection_error")
         self.assertEqual(response.status_code, 502)
 
     # This test will throw "Django [Errno 32]" Broken pipe errors because Face/Off
     # will break the connection to the other side for taking too long
     def testTimedOutEndpoint(self):
         response = self.client.get("/slow_response")
-        self.assertEqual(response.content.decode('utf-8'), '{"message": "service_time_out", "error": "408"}')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result['error'], '408')
+        self.assertEqual(result['message'], "service_time_out")
         self.assertEqual(response.status_code, 408)
 
     def testOneUpRestDown(self):
@@ -95,11 +103,11 @@ class ProxyTests(LiveServerTestCase):
 
     def testGetArrayParamPassedSuccessfully(self):
         response = self.client.get("/get_array_params?test_get_param=success&test_get_param=also_works")
-        self.assertEqual(response.content.decode('utf-8'), "test_get_param:[u'success', u'also_works']")
+        self.assertEqual(response.content.decode('utf-8'), "test_get_param:success,also_works")
 
     def testGetArrayParamPassedSuccessfullyOnAPost(self):
         response = self.client.post("/get_array_params?test_get_param=success&test_get_param=also_works")
-        self.assertEqual(response.content.decode('utf-8'), "test_get_param:[u'success', u'also_works']")
+        self.assertEqual(response.content.decode('utf-8'), "test_get_param:success,also_works")
 
     def testCacheHeaderAddition(self):
         response = self.client.get("/transformers/response_add_cache_headers_missing")
@@ -144,7 +152,9 @@ class ProxyTests(LiveServerTestCase):
 
     def testIPWhiteListRequestTransformerWithInvalidIP(self):
         response = self.client.get('/transformers/ip_white_list', REMOTE_ADDR='0.0.0.0')
-        self.assertEqual(response.content.decode('utf-8'), '{"message": "Some conditions are forbidden", "error": 403}')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result['error'], 403)
+        self.assertEqual(result['message'], "Some conditions are forbidden")
 
     def testIPWhiteListRequestTransformerWithValidProxiedIP(self):
         response = self.client.get('/transformers/ip_white_list', HTTP_X_FORWARDED_FOR='5.5.5.5')
@@ -152,7 +162,9 @@ class ProxyTests(LiveServerTestCase):
 
     def testIPWhiteListRequestTransformerWithInvalidProxiedIP(self):
         response = self.client.get('/transformers/ip_white_list', HTTP_X_FORWARDED_FOR='0.0.0.0')
-        self.assertEqual(response.content.decode('utf-8'), '{"message": "Some conditions are forbidden", "error": 403}')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result['error'], 403)
+        self.assertEqual(result['message'], "Some conditions are forbidden")
 
     def testIPWhiteListRequestTransformerWithValidProxiedIPAtEndOfChain(self):
         response = self.client.get('/transformers/ip_white_list', HTTP_X_FORWARDED_FOR='0.0.0.0,9.9.9.9,5.5.5.5')
@@ -160,23 +172,33 @@ class ProxyTests(LiveServerTestCase):
 
     def testIPWhiteListRequestTransformerWithValidProxiedIPNotAtEndOfChain(self):
         response = self.client.get('/transformers/ip_white_list', HTTP_X_FORWARDED_FOR='0.0.0.0,5.5.5.5,9.9.9.9')
-        self.assertEqual(response.content.decode('utf-8'), '{"message": "Some conditions are forbidden", "error": 403}')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result['error'], 403)
+        self.assertEqual(result['message'], "Some conditions are forbidden")
 
     def testIPWhiteListRequestTransformerWithValidIPButInvalidProxiedIP(self):
         response = self.client.get('/transformers/ip_white_list', HTTP_X_FORWARDED_FOR='0.0.0.0', REMOTE_ADDR='5.5.5.5')
-        self.assertEqual(response.content.decode('utf-8'), '{"message": "Some conditions are forbidden", "error": 403}')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result['error'], 403)
+        self.assertEqual(result['message'], "Some conditions are forbidden")
 
     def testIPWhiteListRequestTransformerWithMalformedForwardedFor(self):
         response = self.client.get('/transformers/ip_white_list', HTTP_X_FORWARDED_FOR='adfsa88134hFk.,!@$')
-        self.assertEqual(response.content.decode('utf-8'), '{"message": "Some conditions are forbidden", "error": 403}')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result['error'], 403)
+        self.assertEqual(result['message'], "Some conditions are forbidden")
 
     def testIPWhiteListRequestTransformerWithMalformedRemoteAddr(self):
         response = self.client.get('/transformers/ip_white_list', REMOTE_ADDR="JFDAJFSJKSF")
-        self.assertEqual(response.content.decode('utf-8'), '{"message": "Some conditions are forbidden", "error": 403}')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result['error'], 403)
+        self.assertEqual(result['message'], "Some conditions are forbidden")
 
     def testIPWhiteListRequestTransformerWithNoRemoteAddr(self):
         response = self.client.get('/transformers/ip_white_list', REMOTE_ADDR=None)
-        self.assertEqual(response.content.decode('utf-8'), '{"message": "Some conditions are forbidden", "error": 403}')
+        result = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(result['error'], 403)
+        self.assertEqual(result['message'], "Some conditions are forbidden")
 
 
     @classmethod
