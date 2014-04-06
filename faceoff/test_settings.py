@@ -1,3 +1,5 @@
+import os
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',	      # Face/Off has very limited db requirements (only needed for auth)
@@ -10,8 +12,11 @@ DATABASES = {
 }
 
 # specify the TEST configuration file, that maps test views for our tests.
+
 API_CONF_FILE = "../proxy/proxy_tests/test_config.json"
 DEBUG = True
+FIXTURE_DIRS = [os.path.join(os.path.dirname(os.path.abspath(__file__)), '../proxy/proxy_tests/fixtures'),]
+
 
 SECRET_KEY = "TEST-SECRET-KEY"
 
