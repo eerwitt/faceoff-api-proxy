@@ -22,6 +22,7 @@ from proxy.authentication.utils import verify_request
 from proxy.authentication.exceptions import AuthenticationError
 from proxy.utils import load_class_from_name, get_all_http_request_headers, get_content_request_headers_only, application_hasher
 from proxy.proxy_tests import RequestMock
+from collections import OrderedDict
 
 __author__ = 'nick'
 
@@ -99,28 +100,25 @@ class UtilsTestCase(TestCase):
         a = Application()
         a.id = "test_id"
         a.client_secret = "test_secret"
-        parameters = {
-            "test_param_1": random.randint(0,100),
-            "test_param_2": ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
-        }
+        parameters = OrderedDict()
+        parameters['test_param_1'] = random.randint(0,100)
+        parameters['test_param_2'] = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
 
         parameters['signature'] = self.__build_signature(a.id, a.client_secret, parameters)
 
-        r = RequestFactory().get("/test", parameters)
-
+        r = RequestFactory().get("/test", data=parameters)
         self.assertEqual(a, verify_request(r, a))  # this is a valid request so the app should come back
 
     def testIncorrectlySignedAuthVerifySignature(self):
         a = Application()
         a.id = "test_id"
         a.client_secret = "test_secret"
-        parameters = {
+        parameters = OrderedDict({
             "test_param_1": random.randint(0,100),
             "test_param_2": ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
-        }
+        })
 
         parameters['signature'] = self.__build_signature(a.id, "bad_secret", parameters)
-
         r = RequestFactory().get("/test", parameters)
 
         # this throws an error since it isn't a valid signature
@@ -130,6 +128,6 @@ class UtilsTestCase(TestCase):
         # let's make the signature manually the way we expect
         query_string = urlencode(parameters)
         key = "%s&%s" % (key, secret)
-        signed_hash = hmac.new(key, query_string, sha1)
+        signed_hash = hmac.new(key.encode(), query_string.encode(), sha1)
         signed_signature = binascii.b2a_base64(signed_hash.digest())[:-1]
-        return signed_signature
+        return signed_signature.decode()

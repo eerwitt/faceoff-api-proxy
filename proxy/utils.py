@@ -97,7 +97,8 @@ def convert_variable_to_env_setting(variable):
 
 
 def application_hasher(app, string):
-    return hmac.new(app.id+":"+app.client_secret+":"+string).hexdigest()
+    magic_string = app.id+":"+app.client_secret+":"+string
+    return hmac.new(magic_string.encode('utf-8')).hexdigest()
 
 
 # from http://stackoverflow.com/questions/4581789/how-do-i-get-user-ip-address-in-django

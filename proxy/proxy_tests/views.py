@@ -43,7 +43,7 @@ def slow_test(request):
 
 
 def status_code(request, status_code):
-    return HttpResponse(status_code, status=status_code)
+    return HttpResponse(status_code, status=int(status_code))
 
 
 def custom_faceoff_headers(request):
@@ -59,7 +59,7 @@ def get_params_request(request):
 
 def get_array_params_request(request):
     if "test_get_param" in request.GET:
-        return HttpResponse("test_get_param:%s" % request.GET.getlist("test_get_param"))
+        return HttpResponse("test_get_param:%s" % ",".join(request.GET.getlist("test_get_param")))
     else:
         return HttpResponse("NO test_get_param found")
 
