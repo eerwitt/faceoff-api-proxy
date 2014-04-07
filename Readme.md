@@ -34,13 +34,13 @@ source bin/activate
 // Create a code dir to keep the code separate from the virtual environment stuff
 mkdir code
 cd code
-git clone git@github.com:TeamSidewinder/faceoff.git
+git clone git@github.com:TeamSidewinder/faceoff-api-proxy.git
 ```
 
 Face/off has additional packages in the `requirements.txt` file, use `pip` to install these packages, (kinda slow).
 
 ```
-cd faceoff
+cd faceoff-api-proxy
 pip install -r requirements.txt
 ```
 
